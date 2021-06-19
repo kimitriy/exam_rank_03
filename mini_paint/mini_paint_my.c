@@ -1,38 +1,5 @@
 #include "mini_paint.h"
 
-void	ft_bzero(void *s, size_t n)
-{
-	size_t			i;
-	unsigned char	*mem;
-
-	mem = s;
-	i = 0;
-	while (i < n)
-	{
-		mem[i] = '\0';
-		i++;
-	}
-}
-
-int	err_message(char *error)
-{
-	write(1, "Error: ", 7);
-	write(1, error, ft_strlen(error));
-	write(1, "\n", 1);
-	return(1);
-}
-
-void	*ft_calloc(size_t count, size_t size)
-{
-	void	*pntr;
-
-	pntr = (void *)malloc(count * size);
-	if (NULL == pntr)
-		err_message("Memory allocation error");
-	ft_bzero(pntr, count * size);
-	return (pntr);
-}
-
 int	ft_strlen(const char *s)
 {
 	int		i;
@@ -43,6 +10,14 @@ int	ft_strlen(const char *s)
 	while (s[i])
 		i++;
 	return (i);
+}
+
+int	err_message(char *error)
+{
+	write(1, "Error: ", 7);
+	write(1, error, ft_strlen(error));
+	write(1, "\n", 1);
+	return(1);
 }
 
 int free_all(FILE *file, t_img *img)
@@ -74,11 +49,13 @@ char **fill_cnvs(FILE *file, t_img *img)
 		return (NULL);
 	if (img->cnvs.width <= 0 || img->cnvs.width > 300 || img->cnvs.height <= 0 || img->cnvs.height > 300)
 		return (NULL);
-	cnvs = (char **)ft_calloc(img->cnvs.height, sizeof(char *));
+	if (!(cnvs = (char **)malloc(img->cnvs.height * sizeof(char *))))
+		return (NULL);
 	il = 0;
 	while (il < img->cnvs.height)
 	{
-		cnvs[il] = (char *)ft_calloc(img->cnvs.width, sizeof(char));
+		if (!(cnvs[il] = (char *)malloc(img->cnvs.width * sizeof(char))))
+			return (NULL);
 		is = 0;
 		while (is < img->cnvs.width)
 		{
@@ -90,7 +67,7 @@ char **fill_cnvs(FILE *file, t_img *img)
 	return (cnvs);
 }
 
-int	is_rad(float x, float y, t_img *img)
+int	is_in_circl(float x, float y, t_img *img)
 {
 	float	dist;
 
@@ -116,7 +93,7 @@ void	fill_fgr_2(t_img *img)
 		is = 0;
 		while (is < img->cnvs.width)
 		{
-			rad = is_rad((float)is, (float)il, img);
+			rad = is_in_circl((float)is, (float)il, img);
 			if ((rad == 2 && img->fgr.type == 'c') || (rad > 0 && img->fgr.type == 'C'))
 				img->image[il][is] = img->fgr.color;
 			is++;	
@@ -164,15 +141,16 @@ int main(int argc, char **argv)
 	t_img *img;
 	FILE *file;
 
-	img = (t_img *)ft_calloc(1, sizeof(t_img));
+	if (!(img = (t_img *)malloc(1 * sizeof(t_img))))
+		return (err_message("memory not allocated"));
 	if (argc != 2) //wrong number of arguments
-		return (err_message("argument\n"));
+		return (err_message("argument"));
 	if (!(file = fopen(argv[1], "r"))) //opens file, "r" - for reading only
-		return (err_message("Operation file corrupted\n"));
+		return (err_message("Operation file corrupted"));
 	if (!(img->image = fill_cnvs(file, img)))
-		return (free_all(file, img) && err_message("Operation file corrupted\n"));
+		return (free_all(file, img) && err_message("Operation file corrupted"));
 	if (!(fill_fgr_1(file, img)))
-		return (free_all(file, img) && err_message("Operation file corrupted\n"));
+		return (free_all(file, img) && err_message("Operation file corrupted"));
 	print_image(img);
 	free_all(file, img);
 	return (0);
