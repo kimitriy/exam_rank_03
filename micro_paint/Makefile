@@ -30,7 +30,7 @@ all:		${NAME}
 				${GCC} ${CFLAGS} -c $< -o ${<:.c=.o}
 
 ${NAME}:		${OBJS} ${HEADER}
-				${GCC} ${CFLAGS} -o ${NAME} ${OBJS}
+				${GCC} ${CFLAGS} -o ${NAME} ${OBJS} -lm
 
 clean:
 		${RM} ${OBJS}

@@ -10,15 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_H
-# define MINISHELL_H
+#ifndef MICRO_PAINT_H
+# define MICRO_PAINT_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
-
-int	g_exit;
 
 typedef struct s_cnvs
 {
@@ -44,13 +42,11 @@ typedef struct s_img
 	char	**image;
 } t_img;
 
-void		ft_bzero(void *s, size_t n);
-int			err_message(char *error);
-void		*ft_calloc(size_t count, size_t size);
 int			ft_strlen(const char *s);
+int			err_message(char *error);
 int 		free_all(FILE *file, t_img *img);
 char 		**fill_cnvs(FILE *file, t_img *img);
-int			is_in_rect(float x, float y, t_img *img);
+int			is_in_rctngl(float x, float y, t_img *img);
 void		fill_fgr_2(t_img *img);
 int			fill_fgr_1(FILE *file, t_img *img);
 void		print_image(t_img *img);
