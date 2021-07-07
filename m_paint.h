@@ -8,9 +8,9 @@
 
 typedef struct s_cnvs
 {
-	int			width;
-	int			height;
-	char		backgrnd;
+	int			w;
+	int			h;
+	char		bgrnd;
 }	t_cnvs;
 
 typedef struct s_fgr

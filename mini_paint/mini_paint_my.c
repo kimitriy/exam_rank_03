@@ -28,7 +28,7 @@ int free_all(FILE *file, t_img *img)
 	fclose(file);
 	if (img)
 	{
-		while (i < img->cnvs.height)
+		while (i < img->cnvs.h)
 		{
 			free(img->image[i]);
 			i++;
@@ -41,25 +41,25 @@ int free_all(FILE *file, t_img *img)
 
 char **fill_cnvs(FILE *file, t_img *img)
 {
-	int		il;
-	int		is;
+	int		il; //indx line
+	int		is; //indx symb
 	char	**cnvs;
 
-	if ((il = fscanf(file, "%d %d %c\n", &img->cnvs.width, &img->cnvs.height, &img->cnvs.background)) != 3)
+	if ((il = fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd)) != 3)
 		return (NULL);
-	if (img->cnvs.width <= 0 || img->cnvs.width > 300 || img->cnvs.height <= 0 || img->cnvs.height > 300)
+	if (img->cnvs.w <= 0 || img->cnvs.w > 300 || img->cnvs.h <= 0 || img->cnvs.h > 300)
 		return (NULL);
-	if (!(cnvs = (char **)malloc(img->cnvs.height * sizeof(char *))))
+	if (!(cnvs = (char **)malloc(img->cnvs.h * sizeof(char *))))
 		return (NULL);
 	il = 0;
-	while (il < img->cnvs.height)
+	while (il < img->cnvs.h)
 	{
-		if (!(cnvs[il] = (char *)malloc(img->cnvs.width * sizeof(char))))
+		if (!(cnvs[il] = (char *)malloc(img->cnvs.w * sizeof(char))))
 			return (NULL);
 		is = 0;
-		while (is < img->cnvs.width)
+		while (is < img->cnvs.w)
 		{
-			cnvs[il][is] = img->cnvs.background;
+			cnvs[il][is] = img->cnvs.bgrnd;
 			is++;
 		}
 		il++;
@@ -90,10 +90,10 @@ void	fill_fgr_2(t_img *img)
 	int		rad;
 
 	il = 0;
-	while (il < img->cnvs.height)
+	while (il < img->cnvs.h)
 	{
 		is = 0;
-		while (is < img->cnvs.width)
+		while (is < img->cnvs.w)
 		{
 			rad = is_in_circl((float)is, (float)il, img);
 			if ((rad == 2 && img->fgr.type == 'c') || (rad > 0 && img->fgr.type == 'C'))
@@ -126,10 +126,10 @@ void	print_image(t_img *img)
 	int		is;
 
 	il = 0;
-	while (il < img->cnvs.height)
+	while (il < img->cnvs.h)
 	{
 		is = 0;
-		while (is < img->cnvs.width)
+		while (is < img->cnvs.w)
 		{
 			write(1, &img->image[il][is], 1);
 			is++;
