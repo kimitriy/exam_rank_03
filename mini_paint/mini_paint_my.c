@@ -67,6 +67,7 @@ char **fill_cnvs(FILE *file, t_img *img)
 	return (cnvs);
 }
 
+/*circle*/
 int	is_in_circl(float x, float y, t_img *img)
 {
 	float	dist;
@@ -81,6 +82,7 @@ int	is_in_circl(float x, float y, t_img *img)
 	return (0);
 }
 
+/*circle*/
 void	fill_fgr_2(t_img *img)
 {
 	int		il;
@@ -102,17 +104,18 @@ void	fill_fgr_2(t_img *img)
 	}
 }
 
+/*circle*/
 int	fill_fgr_1(FILE *file, t_img *img)
 {
-	int		scan_count;
+	int		scn_count;
 
-	while ((scan_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.radius, &img->fgr.color)) == 5)
+	while ((scn_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.radius, &img->fgr.color)) == 5)
 	{
 		if (img->fgr.radius <= 0 && (img->fgr.type != 'c' || img->fgr.type != 'C'))
 			return (0);
 		fill_fgr_2(img);
 	}
-	if (scan_count >= 0)
+	if (scn_count >= 0)
 		return (0);
 	return (1);
 }

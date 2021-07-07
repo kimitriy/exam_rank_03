@@ -67,6 +67,7 @@ char **fill_cnvs(FILE *file, t_img *img)
 	return (cnvs);
 }
 
+/*rctngl*/
 int	is_in_rctngl(float x, float y, t_img *img)
 {
 	if ((x < img->fgr.x) || (x > img->fgr.x + img->fgr.w) || (y < img->fgr.y) || (y > img->fgr.y + img->fgr.h))
@@ -76,6 +77,7 @@ int	is_in_rctngl(float x, float y, t_img *img)
 	return (1);
 }
 
+/*rctngl*/
 void	fill_fgr_2(t_img *img)
 {
 	int		il;
@@ -97,6 +99,7 @@ void	fill_fgr_2(t_img *img)
 	}
 }
 
+/*rctngl*/
 int	fill_fgr_1(FILE *file, t_img *img)
 {
 	int		scn_count;
