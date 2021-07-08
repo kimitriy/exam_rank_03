@@ -92,23 +92,53 @@ void	fill_fgr_2(t_img *img)
 }
 
 /*circle*/
-void	fill_fgr_1(FILE *file, t_img *img)
+int	fill_fgr_1(FILE *file, t_img *img)
 {
 
 }
 
 /*rctngl*/
-void	fill_fgr_1(FILE *file, t_img *img)
+int	fill_fgr_1(FILE *file, t_img *img)
 {
 
 }
 
 void	print_image(t_img *img)
 {
+	int		il;
+	int		is;
 
+	il = 0;
+	while (il < img->cnvs.h)
+	{
+		is = 0;
+		while (is < img->cnvs.w)
+		{
+			write(1, &img->image[il][is], 1);
+			is++;
+		}
+		write(1, "\n", 1);
+		il++;
+	}
+	
 }
 
 int	main(int argc, char **argv)
 {
-	
+	t_img	*img;
+	FILE	*file;
+
+	if (!(img = (t_img *)malloc(1 * sizeof(t_img))))
+		return (err_message("memory not allocated"));
+	if (argc != 2)
+		return (err_message("wrong number of arguments"));
+	if (!(file = fopen(argv[1], "r")))
+		return (err_message("Operation file corrupted"));
+	if (!(img->image = fill_cnvs(file, img)))
+		return (free_all(file, img) && err_message("Operation file corrupted"));
+	if (!(fill_fgr_1(file, img)))
+		return (free_all(file, img) && err_message("Operation file corrupted"));
+	print_image(img);
+	free_all(file, img);
+	return (0);
 }

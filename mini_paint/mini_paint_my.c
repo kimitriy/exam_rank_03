@@ -146,8 +146,8 @@ int main(int argc, char **argv)
 
 	if (!(img = (t_img *)malloc(1 * sizeof(t_img))))
 		return (err_message("memory not allocated"));
-	if (argc != 2) //wrong number of arguments
-		return (err_message("argument"));
+	if (argc != 2)
+		return (err_message("wrong number of arguments"));
 	if (!(file = fopen(argv[1], "r"))) //opens file, "r" - for reading only
 		return (err_message("Operation file corrupted"));
 	if (!(img->image = fill_cnvs(file, img)))
