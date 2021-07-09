@@ -73,9 +73,9 @@ int	is_in_circl(float x, float y, t_img *img)
 	float	dist;
 
 	dist = sqrt(((x - img->fgr.x) * (x - img->fgr.x)) + ((y - img->fgr.y) * (y - img->fgr.y)));
-	if (dist <= img->fgr.radius)
+	if (dist <= img->fgr.radius) //если точка находится в пределах окружности
 	{
-		if ((img->fgr.radius - dist) < 1)
+		if ((img->fgr.radius - dist) < 1) //если точка находится на краю окружности
 			return (2);
 		return (1);
 	}
@@ -83,11 +83,19 @@ int	is_in_circl(float x, float y, t_img *img)
 }
 
 /*circle*/
+/*
+важо сочетание 2х факторов:
+in_crcl == 2 && img->fgr.type == 'c'
+или
+in_crcl > 0 && img->fgr.type == 'C'
+если например
+in_crcl > 0 && img->fgr.type == 'c' то не заходим в тело if => пиксель не закрашивается
+*/
 void	fill_fgr_2(t_img *img)
 {
 	int		il;
 	int		is;
-	int		rad;
+	int		in_crcl;
 
 	il = 0;
 	while (il < img->cnvs.h)
@@ -95,8 +103,8 @@ void	fill_fgr_2(t_img *img)
 		is = 0;
 		while (is < img->cnvs.w)
 		{
-			rad = is_in_circl((float)is, (float)il, img);
-			if ((rad == 2 && img->fgr.type == 'c') || (rad > 0 && img->fgr.type == 'C'))
+			in_crcl = is_in_circl((float)is, (float)il, img);
+			if ((in_crcl == 2 && img->fgr.type == 'c') || (in_crcl > 0 && img->fgr.type == 'C'))
 				img->image[il][is] = img->fgr.color;
 			is++;	
 		}
@@ -115,7 +123,8 @@ int	fill_fgr_1(FILE *file, t_img *img)
 			return (0);
 		fill_fgr_2(img);
 	}
-	if (scn_count >= 0)
+	// printf("scn_count: %d\n", scn_count);
+	if (scn_count >= 0) //если считалось не верное кол-во аргументов => что то не так с operation file
 		return (0);
 	return (1);
 }
@@ -152,7 +161,7 @@ int main(int argc, char **argv)
 		return (err_message("Operation file corrupted"));
 	if (!(img->image = fill_cnvs(file, img)))
 		return (free_all(file, img) && err_message("Operation file corrupted"));
-	if (!(fill_fgr_1(file, img)))
+	if (!(fill_fgr_1(file, img))) //если fill_fgr_1(file, img) вернула 0 т.е. не истину, наоборот если функция вернула 1 т.е. истину то идем дальше в print_image()
 		return (free_all(file, img) && err_message("Operation file corrupted"));
 	print_image(img);
 	free_all(file, img);

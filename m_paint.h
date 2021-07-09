@@ -13,6 +13,7 @@ typedef struct s_cnvs
 	char		bgrnd;
 }	t_cnvs;
 
+/*circle*/
 typedef struct s_fgr
 {
 	char		type;
@@ -22,6 +23,8 @@ typedef struct s_fgr
 	char		color;
 }	t_fgr;
 
+/*rectangle*/
+/*
 typedef struct s_fgr
 {
 	char		type;
@@ -31,6 +34,7 @@ typedef struct s_fgr
 	float		h;
 	char		color;
 }	t_fgr;
+*/
 
 typedef struct s_img
 {
