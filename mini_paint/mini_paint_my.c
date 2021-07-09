@@ -87,7 +87,7 @@ int	is_in_circl(float x, float y, t_img *img)
 важо сочетание 2х факторов:
 in_crcl == 2 && img->fgr.type == 'c'
 или
-in_crcl > 0 && img->fgr.type == 'C'
+in_crcl == 1 && img->fgr.type == 'C'
 если например
 in_crcl > 0 && img->fgr.type == 'c' то не заходим в тело if => пиксель не закрашивается
 */
@@ -104,7 +104,7 @@ void	fill_fgr_2(t_img *img)
 		while (is < img->cnvs.w)
 		{
 			in_crcl = is_in_circl((float)is, (float)il, img);
-			if ((in_crcl == 2 && img->fgr.type == 'c') || (in_crcl > 0 && img->fgr.type == 'C'))
+			if ((in_crcl == 2 && img->fgr.type == 'c') || (in_crcl == 1 && img->fgr.type == 'C'))
 				img->image[il][is] = img->fgr.color;
 			is++;	
 		}

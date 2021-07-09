@@ -70,9 +70,9 @@ char **fill_cnvs(FILE *file, t_img *img)
 /*rctngl*/
 int	is_in_rctngl(float x, float y, t_img *img)
 {
-	if ((x < img->fgr.x) || (x > img->fgr.x + img->fgr.w) || (y < img->fgr.y) || (y > img->fgr.y + img->fgr.h))
+	if (x < img->fgr.x || x > img->fgr.x + img->fgr.w || y < img->fgr.y || y > img->fgr.y + img->fgr.h)
 		return (0);
-	if ((x - img->fgr.x < 1) || ((img->fgr.x + img->fgr.w) - x < 1) || (y - img->fgr.y < 1) || ((img->fgr.y + img->fgr.h) - y < 1))
+	if (x - img->fgr.x < 1 || img->fgr.x + img->fgr.w - x < 1 || y - img->fgr.y < 1 || img->fgr.y + img->fgr.h - y < 1)
 		return (2);
 	return (1);
 }
@@ -91,9 +91,9 @@ void	fill_fgr_2(t_img *img)
 		while (is < img->cnvs.w)
 		{
 			in_rect = is_in_rctngl((float)is, (float)il, img);
-			if ((in_rect == 2 && img->fgr.type == 'r') || (in_rect > 0 && img->fgr.type == 'R'))
+			if ((in_rect == 2 && img->fgr.type == 'r') || (in_rect == 1 && img->fgr.type == 'R'))
 				img->image[il][is] = img->fgr.color;
-			is++;	
+			is++;
 		}
 		il++;
 	}
@@ -106,7 +106,7 @@ int	fill_fgr_1(FILE *file, t_img *img)
 
 	while ((scn_count = fscanf(file, "%c %f %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.w, &img->fgr.h, &img->fgr.color)) == 6)
 	{
-		if (img->fgr.w <= 0 && (img->fgr.type != 'c' || img->fgr.type != 'C'))
+		if ((img->fgr.w <= 0 || img->fgr.h <= 0) && (img->fgr.type != 'r' || img->fgr.type != 'R'))
 			return (0);
 		fill_fgr_2(img);
 	}

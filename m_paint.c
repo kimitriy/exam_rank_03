@@ -68,58 +68,104 @@ char	**fill_cnvs(FILE *file, t_img *img)
 }
 
 /*circle*/
-int	is_in_circl(float x, float y, t_img *img)
-{
-	
-}
+// int	is_in_circl(float x, float y, t_img *img)
+// {
+// 	float	dist;
+
+// 	dist = sqrt(((x - img->fgr.x) * ((x - img->fgr.x))) + ((y - img->fgr.y) * (y - img->fgr.y)));
+// 	if (dist <= img->fgr.radius)
+// 	{
+// 		if ((img->fgr.radius - dist) < 1)
+// 			return (2);
+// 		return (1);
+// 	}
+// 	return (0);
+// }
 
 /*rctngl*/
 int	is_in_rctngl(float x, float y, t_img *img)
 {
-
+	if (x < img->fgr.x || x > img->fgr.x + img->fgr.w || y < img->fgr.y || y > img->fgr.y + img->fgr.h)
+		return (0);
+	if (x - img->fgr.x < 1 || img->fgr.x + img->fgr.w - x < 1 || y - img->fgr.y < 1 || img->fgr.y + img->fgr.h - y < 1)
+		return (2);
+	return (1);
 }
 
 /*circle*/
-void	fill_fgr_2(t_img *img)
-{
-	int		il;
-	int		is;
-	int		rad;
+// void	fill_fgr_2(t_img *img)
+// {
+// 	int		il;
+// 	int		is;
+// 	int		in_crcl;
 
-	il = 0;
-	while (/* condition */)
-	{
-		/* code */
-	}
-	
-}
+// 	il = 0;
+// 	while (il < img->cnvs.h)
+// 	{
+// 		is = 0;
+// 		while (is < img->cnvs.w)
+// 		{
+// 			in_crcl = is_in_circl((float)is, (float)il, img);
+// 			if ((in_crcl == 2 && img->fgr.type == 'c') || (in_crcl == 1 && img->fgr.type == 'C'))
+// 				img->image[il][is] = img->fgr.color;
+// 			is++;
+// 		}
+// 		il++;
+// 	}
+// }
 
 /*rctngl*/
 void	fill_fgr_2(t_img *img)
 {
+	int		il;
+	int		is;
+	int		in_rect;
 
+	il = 0;
+	while (il < img->cnvs.h)
+	{
+		is = 0;
+		while (is < img->cnvs.w)
+		{
+			in_rect = is_in_rctngl((float)is, (float)il, img);
+			if ((in_rect == 2 && img->fgr.type == 'r') || (in_rect == 1 && img->fgr.type == 'R'))
+				img->image[il][is] = img->fgr.color;
+			is++;
+		}
+		il++;
+	}
 }
 
 /*circle*/
+// int	fill_fgr_1(FILE *file, t_img *img)
+// {
+// 	int		scn_count;
+
+// 	while ((scn_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.radius, &img->fgr.color)) == 5)
+// 	{
+// 		if (img->fgr.radius <= 0 && (img->fgr.type != 'c' || img->fgr.type != 'C'))
+// 			return (0);
+// 		fill_fgr_2(img);
+// 	}
+// 	if (scn_count >= 0)
+// 		return (0);
+// 	return (1);
+// }
+
+/*rctngl*/
 int	fill_fgr_1(FILE *file, t_img *img)
 {
 	int		scn_count;
 
-	while ((scn_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.radius, &img->fgr.color)) == 5)
+	while ((scn_count = fscanf(file, "%c %f %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.w, &img->fgr.h, &img->fgr.color)) == 6)
 	{
-		if (img->fgr.radius <= 0 && (img->fgr.type != 'c' || img->fgr.type != 'C'))
+		if ((img->fgr.w <= 0 || img->fgr.h <= 0) && (img->fgr.type != 'r' || img->fgr.type != 'R'))
 			return (0);
 		fill_fgr_2(img);
 	}
 	if (scn_count >= 0)
 		return (0);
 	return (1);
-}
-
-/*rctngl*/
-int	fill_fgr_1(FILE *file, t_img *img)
-{
-
 }
 
 void	print_image(t_img *img)
@@ -139,7 +185,6 @@ void	print_image(t_img *img)
 		write(1, "\n", 1);
 		il++;
 	}
-	
 }
 
 int	main(int argc, char **argv)
