@@ -20,7 +20,7 @@ int	err_message(char *error)
 	return (1);
 }
 
-int free_all(FILE *file, t_img *img)
+int	free_all(FILE *file, t_img *img)
 {
 	int		i;
 
@@ -68,58 +68,45 @@ char	**fill_cnvs(FILE *file, t_img *img)
 }
 
 /*circle*/
-// int	is_in_circl(float x, float y, t_img *img)
-// {
-// 	float	dist;
-
-// 	dist = sqrt(((x - img->fgr.x) * ((x - img->fgr.x))) + ((y - img->fgr.y) * (y - img->fgr.y)));
-// 	if (dist <= img->fgr.radius)
-// 	{
-// 		if ((img->fgr.radius - dist) < 1)
-// 			return (2);
-// 		return (1);
-// 	}
-// 	return (0);
-// }
-
-/*rctngl*/
-int	is_in_rctngl(float x, float y, t_img *img)
+int	is_in_circl(float x, float y, t_img *img)
 {
-	if (x < img->fgr.x || x > img->fgr.x + img->fgr.w || y < img->fgr.y || y > img->fgr.y + img->fgr.h)
-		return (0);
-	if (x - img->fgr.x < 1 || img->fgr.x + img->fgr.w - x < 1 || y - img->fgr.y < 1 || img->fgr.y + img->fgr.h - y < 1)
-		return (2);
-	return (1);
+	float	dist;
+
+	dist = sqrt(((x - img->fgr.x) * ((x - img->fgr.x))) + ((y - img->fgr.y) * (y - img->fgr.y)));
+	if (dist <= img->fgr.r) //если точка находится в пределах окружности
+	{
+		if ((img->fgr.r - dist) < 1) //если точка находится на краю окружности
+			return (2); 
+		return (1);
+	}
+	return (0);
 }
 
-/*circle*/
-// void	fill_fgr_2(t_img *img)
+/*rctngl*/
+// int	is_in_rctngl(float x, float y, t_img *img)
 // {
-// 	int		il;
-// 	int		is;
-// 	int		in_crcl;
-
-// 	il = 0;
-// 	while (il < img->cnvs.h)
-// 	{
-// 		is = 0;
-// 		while (is < img->cnvs.w)
-// 		{
-// 			in_crcl = is_in_circl((float)is, (float)il, img);
-// 			if ((in_crcl == 2 && img->fgr.type == 'c') || (in_crcl == 1 && img->fgr.type == 'C'))
-// 				img->image[il][is] = img->fgr.color;
-// 			is++;
-// 		}
-// 		il++;
-// 	}
+// 	if (x < img->fgr.x || x > img->fgr.x + img->fgr.w || y < img->fgr.y || y > img->fgr.y + img->fgr.h)
+// 		return (0);
+// 	if (x - img->fgr.x < 1 || img->fgr.x + img->fgr.w - x < 1 || y - img->fgr.y < 1 || img->fgr.y + img->fgr.h - y < 1)
+// 		return (2);
+// 	return (1);
 // }
 
-/*rctngl*/
+
+/*
+важо сочетание 2х факторов:
+in_crcl == 2 && img->fgr.type == 'c'
+или
+in_crcl == 1 && img->fgr.type == 'C'
+если например
+in_crcl > 0 && img->fgr.type == 'c' то не заходим в тело if => пиксель не закрашивается
+*/
+/*circle*/
 void	fill_fgr_2(t_img *img)
 {
 	int		il;
 	int		is;
-	int		in_rect;
+	int		in_crcl;
 
 	il = 0;
 	while (il < img->cnvs.h)
@@ -127,8 +114,8 @@ void	fill_fgr_2(t_img *img)
 		is = 0;
 		while (is < img->cnvs.w)
 		{
-			in_rect = is_in_rctngl((float)is, (float)il, img);
-			if ((in_rect == 2 && img->fgr.type == 'r') || (in_rect == 1 && img->fgr.type == 'R'))
+			in_crcl = is_in_circl((float)is, (float)il, img);
+			if ((in_crcl == 2 && img->fgr.type == 'c') || (in_crcl == 1 && img->fgr.type == 'C'))
 				img->image[il][is] = img->fgr.color;
 			is++;
 		}
@@ -136,21 +123,43 @@ void	fill_fgr_2(t_img *img)
 	}
 }
 
-/*circle*/
-// int	fill_fgr_1(FILE *file, t_img *img)
+/*rctngl*/
+// void	fill_fgr_2(t_img *img)
 // {
-// 	int		scn_count;
+// 	int		il;
+// 	int		is;
+// 	int		in_rect;
 
-// 	while ((scn_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.radius, &img->fgr.color)) == 5)
+// 	il = 0;
+// 	while (il < img->cnvs.h)
 // 	{
-// 		if (img->fgr.radius <= 0 && (img->fgr.type != 'c' || img->fgr.type != 'C'))
-// 			return (0);
-// 		fill_fgr_2(img);
+// 		is = 0;
+// 		while (is < img->cnvs.w)
+// 		{
+// 			in_rect = is_in_rctngl((float)is, (float)il, img);
+// 			if ((in_rect == 2 && img->fgr.type == 'r') || (in_rect == 1 && img->fgr.type == 'R'))
+// 				img->image[il][is] = img->fgr.color;
+// 			is++;
+// 		}
+// 		il++;
 // 	}
-// 	if (scn_count >= 0)
-// 		return (0);
-// 	return (1);
 // }
+
+/*circle*/
+int	fill_fgr_1(FILE *file, t_img *img)
+{
+	int		scn_count;
+
+	while ((scn_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.r, &img->fgr.color)) == 5)
+	{
+		if (img->fgr.r <= 0 || (img->fgr.type != 'c' && img->fgr.type != 'C'))
+			return (0);
+		fill_fgr_2(img);
+	}
+	if (scn_count >= 0)
+		return (0);
+	return (1);
+}
 
 /*rctngl*/
 int	fill_fgr_1(FILE *file, t_img *img)
@@ -163,7 +172,7 @@ int	fill_fgr_1(FILE *file, t_img *img)
 			return (0);
 		fill_fgr_2(img);
 	}
-	if (scn_count >= 0)
+	if (scn_count >= 0) //если считалось не верное кол-во аргументов => что то не так с operation file
 		return (0);
 	return (1);
 }
@@ -196,11 +205,11 @@ int	main(int argc, char **argv)
 		return (err_message("memory not allocated"));
 	if (argc != 2)
 		return (err_message("wrong number of arguments"));
-	if (!(file = fopen(argv[1], "r")))
+	if (!(file = fopen(argv[1], "r"))) //opens file, "r" - for reading only
 		return (err_message("Operation file corrupted"));
 	if (!(img->image = fill_cnvs(file, img)))
 		return (free_all(file, img) && err_message("Operation file corrupted"));
-	if (!(fill_fgr_1(file, img)))
+	if (!(fill_fgr_1(file, img))) //если fill_fgr_1(file, img) вернула 0 т.е. false, наоборот если функция вернула 1 т.е. true то идем дальше в print_image()
 		return (free_all(file, img) && err_message("Operation file corrupted"));
 	print_image(img);
 	free_all(file, img);

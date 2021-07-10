@@ -10,11 +10,11 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME		= micro_paint.out
+NAME		= micro.out
 
 HEADER		= micro_paint.h
 
-SRC 		= 	micro_paint_my.c
+SRC 		= 	micro.c
 
 OBJS		= ${SRC:.c=.o}
 

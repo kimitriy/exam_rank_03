@@ -119,11 +119,10 @@ int	fill_fgr_1(FILE *file, t_img *img)
 
 	while ((scn_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.radius, &img->fgr.color)) == 5)
 	{
-		if (img->fgr.radius <= 0 && (img->fgr.type != 'c' || img->fgr.type != 'C'))
+		if (img->fgr.radius <= 0 || (img->fgr.type != 'c' && img->fgr.type != 'C'))
 			return (0);
 		fill_fgr_2(img);
 	}
-	// printf("scn_count: %d\n", scn_count);
 	if (scn_count >= 0) //если считалось не верное кол-во аргументов => что то не так с operation file
 		return (0);
 	return (1);

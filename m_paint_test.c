@@ -1,33 +1,33 @@
-#include "micro_paint.h"
+#include "m_paint_test.h"
 
-int	ft_strlen(const char *s)
+int	ft_strlen(char *str)
 {
 	int		i;
 
-	if (s == NULL)
+	if (str == NULL)
 		return (0);
 	i = 0;
-	while (s[i])
+	while (str[i])
 		i++;
 	return (i);
 }
 
-int	err_message(char *error)
+int		err_message(char *str)
 {
 	write(1, "Error: ", 7);
-	write(1, error, ft_strlen(error));
+	write(1, str, ft_strlen(str));
 	write(1, "\n", 1);
-	return(1);
+	return (1);
 }
 
-int free_all(FILE *file, t_img *img)
+int		free_all(FILE *file, t_img * img)
 {
 	int		i;
 
-	i = 0;
 	fclose(file);
 	if (img)
 	{
+		i = 0;
 		while (i < img->cnvs.h)
 		{
 			free(img->image[i]);
@@ -39,10 +39,10 @@ int free_all(FILE *file, t_img *img)
 	return (1);
 }
 
-char **fill_cnvs(FILE *file, t_img *img)
+char	**fill_cnvs(FILE *file, t_img *img)
 {
-	int		il; //indx line
-	int		is; //indx symb
+	int		il;
+	int		is;
 	char	**cnvs;
 
 	if ((il = fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd)) != 3)
@@ -67,52 +67,25 @@ char **fill_cnvs(FILE *file, t_img *img)
 	return (cnvs);
 }
 
-/*rctngl*/
-int	is_in_rctngl(float x, float y, t_img *img)
+int		is_in_circl(float x. float y, t_img *img)
 {
-	if (x < img->fgr.x || x > img->fgr.x + img->fgr.w || y < img->fgr.y || y > img->fgr.y + img->fgr.h)
-		return (0);
-	if (x - img->fgr.x < 1 || img->fgr.x + img->fgr.w - x < 1 || y - img->fgr.y < 1 || img->fgr.y + img->fgr.h - y < 1)
-		return (2);
-	return (1);
+
 }
 
-/*rctngl*/
 void	fill_fgr_2(t_img *img)
 {
-	int		il;
-	int		is;
-	int		in_rect;
 
-	il = 0;
-	while (il < img->cnvs.h)
-	{
-		is = 0;
-		while (is < img->cnvs.w)
-		{
-			in_rect = is_in_rctngl((float)is, (float)il, img);
-			if ((in_rect == 2 && img->fgr.type == 'r') || (in_rect == 1 && img->fgr.type == 'R'))
-				img->image[il][is] = img->fgr.color;
-			is++;
-		}
-		il++;
-	}
 }
 
-/*rctngl*/
-int	fill_fgr_1(FILE *file, t_img *img)
+int		fill_fgr_1(FILE *file, t_img *img)
 {
 	int		scn_count;
 
-	while ((scn_count = fscanf(file, "%c %f %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.w, &img->fgr.h, &img->fgr.color)) == 6)
+	while ((scn_count = fscanf(file, "%c %f %f %f %c", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.r, &img->fgr.clr)) == 5)
 	{
-		if ((img->fgr.w <= 0 || img->fgr.h <= 0) && (img->fgr.type != 'r' || img->fgr.type != 'R'))
-			return (0);
-		fill_fgr_2(img);
+		if (img->fgr.r <= 0 &&)
 	}
-	if (scn_count >= 0)
-		return (0);
-	return (1);
+	
 }
 
 void	print_image(t_img *img)
@@ -132,18 +105,19 @@ void	print_image(t_img *img)
 		write(1, "\n", 1);
 		il++;
 	}
+	
 }
 
-int main(int argc, char **argv)
+int		main(int argc, char **argv)
 {
-	t_img *img;
-	FILE *file;
+	t_img	*img;
+	FILE	*file;
 
 	if (!(img = (t_img *)malloc(1 * sizeof(t_img))))
-		return (err_message("memory not allocated"));
+		return (err_message("memory allocation error"));
 	if (argc != 2)
 		return (err_message("wrong number of arguments"));
-	if (!(file = fopen(argv[1], "r"))) //opens file, "r" - for reading only
+	if (!(file = fopen(argv[1], "r")))
 		return (err_message("Operation file corrupted"));
 	if (!(img->image = fill_cnvs(file, img)))
 		return (free_all(file, img) && err_message("Operation file corrupted"));
@@ -151,4 +125,5 @@ int main(int argc, char **argv)
 		return (free_all(file, img) && err_message("Operation file corrupted"));
 	print_image(img);
 	free_all(file, img);
+	return (0);
 }

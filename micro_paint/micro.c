@@ -1,153 +1,172 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include "micro_paint.h"
 
-typedef struct s_zone
+int	ft_strlen(const char *s)
 {
-    int width;
-    int height;
-    char backgrond;
-} t_zone;
+	int		i;
 
-typedef struct s_list
-{
-	char	type;
-	float	x;
-	float	y;
-	float	width;
-	float	height;
-	char	color;
-} t_list;
-
-int ft_strlen(char *str)
-{
-    int i = 0;
-
-    if (!str)
-        return (i);
-    while (str[i])
-        i++;
-    return (i);
+	if (s == NULL)
+		return (0);
+	i = 0;
+	while (s[i])
+		i++;
+	return (i);
 }
 
-int fail(char *str)
+int	err_message(char *error)
 {
-    write(1, str, ft_strlen(str));
-    return (1);
+	write(1, "Error: ", 7);
+	write(1, error, ft_strlen(error));
+	write(1, "\n", 1);
+	return(1);
 }
 
-int free_all(FILE *file, char *draw)
+int free_all(FILE *file, t_img *img)
 {
-    fclose(file);
-    if (draw)
-        free(draw);
-    return (1);
+	int		i;
+
+	i = 0;
+	fclose(file);
+	if (img)
+	{
+		while (i < img->cnvs.h)
+		{
+			free(img->image[i]);
+			i++;
+		}
+		free(img->image);
+		free(img);
+	}
+	return (1);
 }
 
-int check_zone(t_zone *zone)
+char **fill_cnvs(FILE *file, t_img *img)
 {
-    return ((zone->width >= 0 && zone->width <= 300) && (zone->height >= 0 && zone->height <= 300));
+	int		il; //indx line
+	int		is; //indx symb
+	char	**cnvs;
+
+	if ((il = fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd)) != 3)
+		return (NULL);
+	if (img->cnvs.w <= 0 || img->cnvs.w > 300 || img->cnvs.h <= 0 || img->cnvs.h > 300)
+		return (NULL);
+	if (!(cnvs = (char **)malloc(img->cnvs.h * sizeof(char *))))
+		return (NULL);
+	il = 0;
+	while (il < img->cnvs.h)
+	{
+		if (!(cnvs[il] = (char *)malloc(img->cnvs.w * sizeof(char))))
+			return (NULL);
+		is = 0;
+		while (is < img->cnvs.w)
+		{
+			cnvs[il][is] = img->cnvs.bgrnd;
+			is++;
+		}
+		il++;
+	}
+	return (cnvs);
 }
 
-char *get_zone(FILE *file, t_zone *zone)
+/*rctngl*/
+int	is_in_rctngl(float x, float y, t_img *img)
 {
-    int count;
-    char *array;
-    int i = 0;
-
-    if ((count = fscanf(file, "%d %d %c\n", &zone->width, &zone->height, &zone->backgrond)) != 3)
-        return (NULL);
-    if (count == (-1))
-        return (NULL);
-    if (!(check_zone(zone)))
-        return (NULL);
-    array = (char *)malloc(sizeof(char) * (zone->width * zone->height));
-    while (i < zone->width * zone->height)
-    {
-        array[i] = zone->backgrond;
-        i++;
-    }
-    return (array);
+	int	xi;
+	int	yi;
+	
+	xi = (int)ceil(img->fgr.x);
+	yi = (int)ceil(img->fgr.y);
+	if ((xi <= x && x <= (xi + (int)img->fgr.w - 1)) && (yi <= y && y <= (yi + (int)img->fgr.h - 1)))
+	{
+		if((fabsf(x - xi) < 1 || fabsf(x - (xi + img->fgr.w - 1)) < 1) || (fabsf(y - yi) < 1 || fabsf(y - (yi + img->fgr.h - 1)) < 1))
+			return (2);
+		return (1);
+	}	
+	else
+		return (0);
+	
+// 	if ((x < (int)img->fgr.x || x > (int)img->fgr.x + (int)img->fgr.w) || (y < (int)img->fgr.y || y > (int)img->fgr.y + (int)img->fgr.h))
+// 	{
+// 		printf("is not in rect: x: %f, y: %f\n", x, y);
+// 		return (0);
+// 	}	
+// 	if ((fabsf(x - img->fgr.x) < 1 || fabsf(img->fgr.x + img->fgr.w - x) < 1) || (fabsf(y - img->fgr.y) < 1 || fabsf(img->fgr.y + img->fgr.h - y) < 1))
+// 		return (2);
+// 	return (1);
 }
 
-int check_tmp(t_list *tmp)
+/*rctngl*/
+void	fill_fgr_2(t_img *img)
 {
-    return ((tmp->height > 0.00000000 && tmp->width > 0.00000000) && (tmp->type == 'r' || tmp->type == 'R'));
+	int		il;
+	int		is;
+	int		in_rect;
+
+	il = 0;
+	while (il < img->cnvs.h)
+	{
+		is = 0;
+		while (is < img->cnvs.w)
+		{
+			in_rect = is_in_rctngl((float)is, (float)il, img);
+			if ((in_rect == 2 && img->fgr.type == 'r') || (in_rect == 1 && img->fgr.type == 'R'))
+				img->image[il][is] = img->fgr.color;
+			is++;
+		}
+		il++;
+	}
 }
 
-int is_rec(float y, float x, t_list *tmp)
+/*rctngl*/
+int	fill_fgr_1(FILE *file, t_img *img)
 {
-    float check = 1.00000000;
-    if ((x < tmp->x) || (tmp->x + tmp->width < x) || (y < tmp->y) || (tmp->y + tmp->height < y))
-        return (0);
-    if (((x - tmp->x) < check) || ((tmp->x + tmp->width) - x < check) || ((y - tmp->y) < check) || ((tmp->y + tmp->height) - y < check))
-        return (2);
-    return (1);
+	int		scn_count;
+
+	while ((scn_count = fscanf(file, "%c %f %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.w, &img->fgr.h, &img->fgr.color)) == 6)
+	{
+		if ((img->fgr.w <= 0 || img->fgr.h <= 0) || (img->fgr.type != 'r' && img->fgr.type != 'R'))
+			return (0);
+		fill_fgr_2(img);
+	}
+	if (scn_count >= 0)
+		return (0);
+	return (1);
 }
 
-void get_draw(char **draw, t_list *tmp, t_zone *zone)
+void	print_image(t_img *img)
 {
-    int x, y;
-    int rec;
+	int		il;
+	int		is;
 
-    y = 0;
-    while (y < zone->height)
-    {
-        x = 0;
-        while (x < zone->width)
-        {
-            rec = is_rec(y, x, tmp);
-            if ((tmp->type == 'r' && rec == 2) || (tmp->type == 'R' && rec))
-                (*draw)[(y * zone->width) + x] = tmp->color;
-            x++;
-        }
-        y++;
-    }
+	il = 0;
+	while (il < img->cnvs.h)
+	{
+		is = 0;
+		while (is < img->cnvs.w)
+		{
+			write(1, &img->image[il][is], 1);
+			is++;
+		}
+		write(1, "\n", 1);
+		il++;
+	}
 }
 
-int drawing(FILE *file, char **draw, t_zone *zone)
+int main(int argc, char **argv)
 {
-    t_list tmp;
-    int count;
+	t_img *img;
+	FILE *file;
 
-    while ((count = fscanf(file, "%c %f %f %f %f %c\n", &tmp.type, &tmp.x, &tmp.y, &tmp.width, &tmp.height, &tmp.color)) == 6)
-    {
-        if (!(check_tmp(&tmp)))
-            return (0);
-        get_draw(draw, &tmp, zone);
-    }
-    if (count != (-1))
-        return (0);
-    return (1);
-}
-
-void print_draw(char *draw, t_zone *zone)
-{
-    int i = 0;
-
-    while (i < zone->height)
-    {
-        write(1, draw + (i * zone->width), zone->width);
-        write(1, "\n", 1);
-        i++;
-    }
-}
-
-int main(int ac, char **av)
-{
-    FILE *file;
-    char *draw;
-    t_zone zone;
-
-    if (ac != 2)
-        return (fail("Error: argument\n"));
-    if (!(file = fopen(av[1], "r")))
-        return (fail("Error: Operation file corrupted\n"));
-    if (!(draw = get_zone(file, &zone)))
-        return (free_all(file, NULL) && fail("Error: Operation file corrupted\n"));
-    if (!(drawing(file, &draw, &zone)))
-        return (free_all(file, draw) && fail("Error: Operation file corrupted\n"));
-    print_draw(draw, &zone);
-    free_all(file, draw);
-    return (0);
+	printf("argv[1]: %s\n", argv[1]);
+	if (!(img = (t_img *)malloc(1 * sizeof(t_img))))
+		return (err_message("memory not allocated"));
+	if (argc != 2)
+		return (err_message("wrong number of arguments"));
+	if (!(file = fopen(argv[1], "r"))) //opens file, "r" - for reading only
+		return (err_message("Operation file corrupted"));
+	if (!(img->image = fill_cnvs(file, img)))
+		return (free_all(file, img) && err_message("Operation file corrupted"));
+	if (!(fill_fgr_1(file, img)))
+		return (free_all(file, img) && err_message("Operation file corrupted"));
+	print_image(img);
+	free_all(file, img);
 }

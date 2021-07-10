@@ -14,25 +14,25 @@ typedef struct s_cnvs
 }	t_cnvs;
 
 /*circle*/
-// typedef struct s_fgr
-// {
-// 	char		type;
-// 	float		x;
-// 	float		y;
-// 	float		radius;
-// 	char		color;
-// }	t_fgr;
-
-/*rectangle*/
 typedef struct s_fgr
 {
 	char		type;
 	float		x;
 	float		y;
-	float		w;
-	float		h;
+	float		r;
 	char		color;
 }	t_fgr;
+
+/*rectangle*/
+// typedef struct s_fgr
+// {
+// 	char		type;
+// 	float		x;
+// 	float		y;
+// 	float		w;
+// 	float		h;
+// 	char		color;
+// }	t_fgr;
 
 typedef struct s_img
 {
