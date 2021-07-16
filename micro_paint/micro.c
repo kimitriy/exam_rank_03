@@ -26,7 +26,7 @@ int free_all(FILE *file, t_img *img)
 
 	i = 0;
 	fclose(file);
-	if (img)
+	if (img->image != NULL)
 	{
 		while (i < img->cnvs.h)
 		{
@@ -68,37 +68,33 @@ char **fill_cnvs(FILE *file, t_img *img)
 }
 
 /*rctngl*/
-int	is_in_rctngl(float x, float y, t_img *img)
+// printf("x: %d, y: %d, xi: %d, yi: %d, wi: %d, hi: %d\n", x, y, xi, yi, wi, hi);
+int	is_in_rctngl(int x, int y, t_img *img)
 {
 	int	xi;
 	int	yi;
+	int	wi;
+	int	hi;
 	
-	xi = (int)ceil(img->fgr.x);
-	yi = (int)ceil(img->fgr.y);
-	if ((xi <= x && x <= (xi + (int)img->fgr.w - 1)) && (yi <= y && y <= (yi + (int)img->fgr.h - 1)))
+	xi = ceil(img->fgr.x);
+	yi = ceil(img->fgr.y);
+	wi = round(img->fgr.w);
+	hi = round(img->fgr.h);
+	if ((xi <= x && x <= (xi + wi - 1)) && (yi <=y && y <= (yi + hi - 1)))
 	{
-		if((fabsf(x - xi) < 1 || fabsf(x - (xi + img->fgr.w - 1)) < 1) || (fabsf(y - yi) < 1 || fabsf(y - (yi + img->fgr.h - 1)) < 1))
+		if((x == xi || x == xi + wi - 1) || (y == yi || y == yi + hi - 1))
 			return (2);
 		return (1);
 	}	
 	else
 		return (0);
-	
-// 	if ((x < (int)img->fgr.x || x > (int)img->fgr.x + (int)img->fgr.w) || (y < (int)img->fgr.y || y > (int)img->fgr.y + (int)img->fgr.h))
-// 	{
-// 		printf("is not in rect: x: %f, y: %f\n", x, y);
-// 		return (0);
-// 	}	
-// 	if ((fabsf(x - img->fgr.x) < 1 || fabsf(img->fgr.x + img->fgr.w - x) < 1) || (fabsf(y - img->fgr.y) < 1 || fabsf(img->fgr.y + img->fgr.h - y) < 1))
-// 		return (2);
-// 	return (1);
 }
 
 /*rctngl*/
 void	fill_fgr_2(t_img *img)
 {
-	int		il;
-	int		is;
+	int		il; //index line
+	int		is; //index symbol
 	int		in_rect;
 
 	il = 0;
@@ -107,8 +103,8 @@ void	fill_fgr_2(t_img *img)
 		is = 0;
 		while (is < img->cnvs.w)
 		{
-			in_rect = is_in_rctngl((float)is, (float)il, img);
-			if ((in_rect == 2 && img->fgr.type == 'r') || (in_rect == 1 && img->fgr.type == 'R'))
+			in_rect = is_in_rctngl(is, il, img);
+			if ((in_rect == 2 && img->fgr.type == 'r') || ((in_rect == 1 || in_rect == 2) && img->fgr.type == 'R'))
 				img->image[il][is] = img->fgr.color;
 			is++;
 		}
@@ -156,14 +152,13 @@ int main(int argc, char **argv)
 	t_img *img;
 	FILE *file;
 
-	printf("argv[1]: %s\n", argv[1]);
 	if (!(img = (t_img *)malloc(1 * sizeof(t_img))))
 		return (err_message("memory not allocated"));
 	if (argc != 2)
 		return (err_message("wrong number of arguments"));
 	if (!(file = fopen(argv[1], "r"))) //opens file, "r" - for reading only
 		return (err_message("Operation file corrupted"));
-	if (!(img->image = fill_cnvs(file, img)))
+	if ((img->image = fill_cnvs(file, img)) == NULL)
 		return (free_all(file, img) && err_message("Operation file corrupted"));
 	if (!(fill_fgr_1(file, img)))
 		return (free_all(file, img) && err_message("Operation file corrupted"));

@@ -26,7 +26,7 @@ int free_all(FILE *file, t_img *img)
 
 	i = 0;
 	fclose(file);
-	if (img)
+	if (img->image != NULL)
 	{
 		while (i < img->cnvs.h)
 		{
@@ -104,7 +104,7 @@ void	fill_fgr_2(t_img *img)
 		while (is < img->cnvs.w)
 		{
 			in_crcl = is_in_circl((float)is, (float)il, img);
-			if ((in_crcl == 2 && img->fgr.type == 'c') || (in_crcl == 1 && img->fgr.type == 'C'))
+			if ((in_crcl == 2 && img->fgr.type == 'c') || ((in_crcl == 1 || in_crcl == 2) && img->fgr.type == 'C'))
 				img->image[il][is] = img->fgr.color;
 			is++;	
 		}
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 		return (err_message("wrong number of arguments"));
 	if (!(file = fopen(argv[1], "r"))) //opens file, "r" - for reading only
 		return (err_message("Operation file corrupted"));
-	if (!(img->image = fill_cnvs(file, img)))
+	if ((img->image = fill_cnvs(file, img)) == NULL)
 		return (free_all(file, img) && err_message("Operation file corrupted"));
 	if (!(fill_fgr_1(file, img))) //если fill_fgr_1(file, img) вернула 0 т.е. не истину, наоборот если функция вернула 1 т.е. истину то идем дальше в print_image()
 		return (free_all(file, img) && err_message("Operation file corrupted"));

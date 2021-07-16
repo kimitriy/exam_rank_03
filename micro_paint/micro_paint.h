@@ -28,10 +28,10 @@ typedef struct s_cnvs
 typedef struct s_fgr
 {
 	char	type;
-	float	x;
-	float	y;
-	float	w;
-	float	h;
+	float	x; //x of the top left corner
+	float	y; //y of the top left corner
+	float	w; //width of the rectangle
+	float	h; //height of the rectangle
 	char	color;
 } t_fgr;
 
@@ -46,7 +46,7 @@ int			ft_strlen(const char *s);
 int			err_message(char *error);
 int 		free_all(FILE *file, t_img *img);
 char 		**fill_cnvs(FILE *file, t_img *img);
-int			is_in_rctngl(float x, float y, t_img *img);
+int			is_in_rctngl(int x, int y, t_img *img);
 void		fill_fgr_2(t_img *img);
 int			fill_fgr_1(FILE *file, t_img *img);
 void		print_image(t_img *img);

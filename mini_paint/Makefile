@@ -10,11 +10,11 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME		= mini_paint.out
+NAME		= mini.out
 
 HEADER		= mini_paint.h
 
-SRC 		= 	mini_paint_my.c
+SRC 		= 	mini.c
 
 OBJS		= ${SRC:.c=.o}
 
