@@ -30,7 +30,7 @@ typedef struct s_fgr
 	char	type;
 	float	x;
 	float	y;
-	float	radius;
+	float	r;
 	char	color;
 } t_fgr;
 

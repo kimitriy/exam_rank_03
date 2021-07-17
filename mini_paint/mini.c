@@ -45,7 +45,7 @@ char **fill_cnvs(FILE *file, t_img *img)
 	int		is; //indx symb
 	char	**cnvs;
 
-	if ((il = fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd)) != 3)
+	if (fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd) != 3)
 		return (NULL);
 	if (img->cnvs.w <= 0 || img->cnvs.w > 300 || img->cnvs.h <= 0 || img->cnvs.h > 300)
 		return (NULL);
@@ -73,9 +73,9 @@ int	is_in_circl(float x, float y, t_img *img)
 	float	dist;
 
 	dist = sqrt(((x - img->fgr.x) * (x - img->fgr.x)) + ((y - img->fgr.y) * (y - img->fgr.y)));
-	if (dist <= img->fgr.radius) //если точка находится в пределах окружности
+	if (dist <= img->fgr.r) //если точка находится в пределах окружности
 	{
-		if ((img->fgr.radius - dist) < 1) //если точка находится на краю окружности
+		if ((img->fgr.r - dist) < 1) //если точка находится на краю окружности
 			return (2);
 		return (1);
 	}
@@ -117,9 +117,9 @@ int	fill_fgr_1(FILE *file, t_img *img)
 {
 	int		scn_count;
 
-	while ((scn_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.radius, &img->fgr.color)) == 5)
+	while ((scn_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.r, &img->fgr.color)) == 5)
 	{
-		if (img->fgr.radius <= 0 || (img->fgr.type != 'c' && img->fgr.type != 'C'))
+		if (img->fgr.r <= 0 || (img->fgr.type != 'c' && img->fgr.type != 'C'))
 			return (0);
 		fill_fgr_2(img);
 	}

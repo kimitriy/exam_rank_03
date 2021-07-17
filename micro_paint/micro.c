@@ -45,7 +45,7 @@ char **fill_cnvs(FILE *file, t_img *img)
 	int		is; //indx symb
 	char	**cnvs;
 
-	if ((il = fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd)) != 3)
+	if (fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd) != 3)
 		return (NULL);
 	if (img->cnvs.w <= 0 || img->cnvs.w > 300 || img->cnvs.h <= 0 || img->cnvs.h > 300)
 		return (NULL);
@@ -78,9 +78,9 @@ int	is_in_rctngl(int x, int y, t_img *img)
 	
 	xi = ceil(img->fgr.x);
 	yi = ceil(img->fgr.y);
-	wi = round(img->fgr.w);
-	hi = round(img->fgr.h);
-	if ((xi <= x && x <= (xi + wi - 1)) && (yi <=y && y <= (yi + hi - 1)))
+	wi = floor(img->fgr.w);
+	hi = floor(img->fgr.h);
+	if ((xi <= x && x <= (xi + wi - 1)) && (yi <= y && y <= (yi + hi - 1)))
 	{
 		if((x == xi || x == xi + wi - 1) || (y == yi || y == yi + hi - 1))
 			return (2);
@@ -113,6 +113,7 @@ void	fill_fgr_2(t_img *img)
 }
 
 /*rctngl*/
+//printf("type: %c, x: %f, y: %f, w: %f, h: %f, color: %c\n", img->fgr.type, img->fgr.x, img->fgr.y, img->fgr.w, img->fgr.h, img->fgr.color);
 int	fill_fgr_1(FILE *file, t_img *img)
 {
 	int		scn_count;
@@ -124,7 +125,7 @@ int	fill_fgr_1(FILE *file, t_img *img)
 		fill_fgr_2(img);
 	}
 	if (scn_count >= 0)
-		return (0);
+			return (0);
 	return (1);
 }
 
