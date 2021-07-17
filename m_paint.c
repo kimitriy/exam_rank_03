@@ -20,13 +20,13 @@ int	err_message(char *error)
 	return (1);
 }
 
-int	free_all(FILE *file, t_img *img)
+int free_all(FILE *file, t_img *img)
 {
 	int		i;
 
 	i = 0;
 	fclose(file);
-	if (img)
+	if (img->image != NULL)
 	{
 		while (i < img->cnvs.h)
 		{
@@ -45,7 +45,7 @@ char	**fill_cnvs(FILE *file, t_img *img)
 	int		is; //indx symb
 	char	**cnvs;
 
-	if ((il = fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd)) != 3)
+	if (fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd) != 3)
 		return (NULL);
 	if (img->cnvs.w <= 0 || img->cnvs.w > 300 || img->cnvs.h <= 0 || img->cnvs.h > 300)
 		return (NULL);
@@ -72,25 +72,37 @@ int	is_in_circl(float x, float y, t_img *img)
 {
 	float	dist;
 
-	dist = sqrt(((x - img->fgr.x) * ((x - img->fgr.x))) + ((y - img->fgr.y) * (y - img->fgr.y)));
+	dist = sqrt(((x - img->fgr.x) * (x - img->fgr.x)) + ((y - img->fgr.y) * (y - img->fgr.y)));
 	if (dist <= img->fgr.r) //если точка находится в пределах окружности
 	{
 		if ((img->fgr.r - dist) < 1) //если точка находится на краю окружности
-			return (2); 
+			return (2);
 		return (1);
 	}
 	return (0);
 }
 
 /*rctngl*/
-// int	is_in_rctngl(float x, float y, t_img *img)
-// {
-// 	if (x < img->fgr.x || x > img->fgr.x + img->fgr.w || y < img->fgr.y || y > img->fgr.y + img->fgr.h)
-// 		return (0);
-// 	if (x - img->fgr.x < 1 || img->fgr.x + img->fgr.w - x < 1 || y - img->fgr.y < 1 || img->fgr.y + img->fgr.h - y < 1)
-// 		return (2);
-// 	return (1);
-// }
+int	is_in_rctngl(int x, int y, t_img *img)
+{
+	int	xi;
+	int	yi;
+	int	wi;
+	int	hi;
+	
+	xi = ceil(img->fgr.x);
+	yi = ceil(img->fgr.y);
+	wi = floor(img->fgr.w);
+	hi = floor(img->fgr.h);
+	if ((xi <= x && x <= (xi + wi - 1)) && (yi <= y && y <= (yi + hi - 1)))
+	{
+		if((x == xi || x == xi + wi - 1) || (y == yi || y == yi + hi - 1))
+			return (2);
+		return (1);
+	}	
+	else
+		return (0);
+}
 
 
 /*
@@ -115,7 +127,7 @@ void	fill_fgr_2(t_img *img)
 		while (is < img->cnvs.w)
 		{
 			in_crcl = is_in_circl((float)is, (float)il, img);
-			if ((in_crcl == 2 && img->fgr.type == 'c') || (in_crcl == 1 && img->fgr.type == 'C'))
+			if ((in_crcl == 2 && img->fgr.type == 'c') || ((in_crcl == 1 || in_crcl == 2) && img->fgr.type == 'C'))
 				img->image[il][is] = img->fgr.color;
 			is++;
 		}
@@ -124,26 +136,26 @@ void	fill_fgr_2(t_img *img)
 }
 
 /*rctngl*/
-// void	fill_fgr_2(t_img *img)
-// {
-// 	int		il;
-// 	int		is;
-// 	int		in_rect;
+void	fill_fgr_2(t_img *img)
+{
+	int		il; //index line
+	int		is; //index symbol
+	int		in_rect;
 
-// 	il = 0;
-// 	while (il < img->cnvs.h)
-// 	{
-// 		is = 0;
-// 		while (is < img->cnvs.w)
-// 		{
-// 			in_rect = is_in_rctngl((float)is, (float)il, img);
-// 			if ((in_rect == 2 && img->fgr.type == 'r') || (in_rect == 1 && img->fgr.type == 'R'))
-// 				img->image[il][is] = img->fgr.color;
-// 			is++;
-// 		}
-// 		il++;
-// 	}
-// }
+	il = 0;
+	while (il < img->cnvs.h)
+	{
+		is = 0;
+		while (is < img->cnvs.w)
+		{
+			in_rect = is_in_rctngl(is, il, img);
+			if ((in_rect == 2 && img->fgr.type == 'r') || ((in_rect == 1 || in_rect == 2) && img->fgr.type == 'R'))
+				img->image[il][is] = img->fgr.color;
+			is++;
+		}
+		il++;
+	}
+}
 
 /*circle*/
 int	fill_fgr_1(FILE *file, t_img *img)
