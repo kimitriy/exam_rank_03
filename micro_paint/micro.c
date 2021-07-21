@@ -17,7 +17,7 @@ typedef struct s_fgr
 	float		y;
 	float		w;
 	float		h;
-	char		color;
+	char		col;
 }	t_fgr;
 
 typedef struct s_img
@@ -49,48 +49,48 @@ int		err_message(char *str)
 
 char	**fill_cnvs(FILE *file, t_img *img)
 {
-	int		il;
-	int		is;
+	int		ix;
+	int		iy;
 	char	**cnvs;
 
 	if (fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd) != 3)
 		return (NULL);
-	if (img->cnvs.w <= 0 || img->cnvs.w > 300 || img->cnvs.h <= 0 || img->cnvs.h > 300)
+	if ((img->cnvs.w <= 0 || img->cnvs.w > 300) || (img->cnvs.h <= 0 || img->cnvs.h > 300))
 		return (NULL);
 	if (!(cnvs = (char **)malloc(img->cnvs.h * sizeof(char *))))
 		return (NULL);
-	il = 0;
-	while (il < img->cnvs.h)
+	iy = 0;
+	while (iy < img->cnvs.h)
 	{
-		if (!(cnvs[il] = (char *)malloc(img->cnvs.w * sizeof(char))))
+		if (!(cnvs[iy] = (char *)malloc(img->cnvs.w * sizeof(char))))
 			return (NULL);
-		is = 0;
-		while (is < img->cnvs.w)
+		ix = 0;
+		while (ix < img->cnvs.w)
 		{
-			cnvs[il][is] = img->cnvs.bgrnd;
-			is++;
+			cnvs[iy][ix] = img->cnvs.bgrnd;
+			ix++;
 		}
-		il++;
+		iy++;
 	}
 	return (cnvs);
 }
 
 void	print_image(t_img *img)
 {
-	int		il;
-	int		is;
+	int	iy;
+	int	ix;
 
-	il = 0;
-	while (il < img->cnvs.h)
+	iy = 0;
+	while (iy < img->cnvs.h)
 	{
-		is = 0;
-		while (is < img->cnvs.w)
+		ix = 0;
+		while (ix < img->cnvs.w)
 		{
-			write(1, &img->image[il][is], 1);
-			is++;
+			write(1, &img->image[iy][ix], 1);
+			ix++;
 		}
 		write(1, "\n", 1);
-		il++;	
+		iy++;
 	}
 }
 
@@ -113,7 +113,7 @@ int		free_all(FILE *file, t_img *img)
 	return (1);
 }
 
-int		is_in_rect(int	x, int y, t_img *img)
+int	is_in_rect(int x, int y, t_img *img)
 {
 	int		xi;
 	int		yi;
@@ -126,7 +126,7 @@ int		is_in_rect(int	x, int y, t_img *img)
 	hi = floor(img->fgr.h);
 	if ((xi <= x && x <= (xi + wi - 1)) && (yi <= y && y <= (yi + hi - 1)))
 	{
-		if ((x == xi || x == xi + wi - 1) || (y == yi || y == yi + hi - 1))
+		if ((xi == x || x == (xi + wi - 1)) || (yi == y || y == (yi + hi - 1)))
 			return (2);
 		return (1);
 	}
@@ -136,47 +136,47 @@ int		is_in_rect(int	x, int y, t_img *img)
 
 void	fill_fgr_2(t_img *img)
 {
-	int		il;
-	int		is;
+	int		iy;
+	int		ix;
 	int		in_rect;
 
-	il = 0;
-	while (il < img->cnvs.h)
+	iy = 0;
+	while (iy < img->cnvs.h)
 	{
-		is = 0;
-		while (is < img->cnvs.w)
+		ix = 0;
+		while (ix < img->cnvs.w)
 		{
-			in_rect = is_in_rect(is, il, img);
-			if ((in_rect == 2 && img->fgr.type == 'r') || ((in_rect == 1 || in_rect ==2) && img->fgr.type == 'R'))
-				img->image[il][is] = img->fgr.color;
-			is++;
+			in_rect = is_in_rect(ix, iy, img);
+			if ((in_rect == 2 && img->fgr.type == 'r') || ((in_rect == 1 || in_rect == 2) && img->fgr.type == 'R'))
+				img->image[iy][ix] = img->fgr.col;
+			ix++;
 		}
-		il++;
+		iy++;
 	}
 }
 
 int		fill_fgr_1(FILE *file, t_img *img)
 {
-	int		scn_count;
+	int		scan_count;
 
-	while ((scn_count = fscanf(file, "%c %f %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.w, &img->fgr.h, &img->fgr.color)) == 6)
+	while ((scan_count = fscanf(file, "%c %f %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.w, &img->fgr.h, &img->fgr.col)) == 6)
 	{
 		if ((img->fgr.w <= 0 || img->fgr.h <= 0) || (img->fgr.type != 'r' && img->fgr.type != 'R'))
 			return (0);
 		fill_fgr_2(img);
 	}
-	if (scn_count >= 0)
+	if (scan_count >= 0)
 		return (0);
 	return (1);
 }
 
-int	main(int argc, char **argv)
+int		main(int argc, char **argv)
 {
 	FILE	*file;
 	t_img	*img;
 
 	if (!(img = (t_img *)malloc(1 * sizeof(t_img))))
-		return (err_message("Memory not allocated"));
+		return (err_message("Memory allocation error"));
 	if (argc != 2)
 		return (err_message("Wrong number of arguments"));
 	if (!(file = fopen(argv[1], "r")))

@@ -31,7 +31,7 @@ typedef struct s_fgr
 	float	x;
 	float	y;
 	float	r;
-	char	color;
+	char	col;
 } t_fgr;
 
 typedef struct s_img

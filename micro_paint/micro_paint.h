@@ -32,7 +32,7 @@ typedef struct s_fgr
 	float	y; //y of the top left corner
 	float	w; //width of the rectangle
 	float	h; //height of the rectangle
-	char	color;
+	char	col;
 } t_fgr;
 
 typedef struct s_img
