@@ -13,8 +13,10 @@
 NAME		= m_paint.out
 
 HEADER		= m_paint.h
+# HEADER		= m_paint_test.h
 
 SRC 		= 	m_paint.c
+# SRC 		= 	m_paint_test.c
 
 OBJS		= ${SRC:.c=.o}
 

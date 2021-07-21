@@ -22,24 +22,24 @@ int	err_message(char *error)
 
 void	print_image(t_img *img)
 {
-	int	il;
-	int	is;
+	int	iy;
+	int	ix;
 
-	il = 0;
-	while (il < img->cnvs.h)
+	iy = 0;
+	while (iy < img->cnvs.h)
 	{
-		is = 0;
-		while (is < img->cnvs.w)
+		ix = 0;
+		while (ix < img->cnvs.w)
 		{
-			write(1, &img->image[il][is], 1);
-			is++;
+			write(1, &img->image[iy][ix], 1);
+			ix++;
 		}
 		write(1, "\n", 1);
-		il++;
+		iy++;
 	}
 }
 
-void	free_all(FILE *file, t_img *img)
+int	free_all(FILE *file, t_img *img)
 {
 	int	i;
 
@@ -55,88 +55,173 @@ void	free_all(FILE *file, t_img *img)
 		free(img->image);
 		free(img);
 	}
+	return (1);
 }
 
+/*fill_cnvs*/
 char	**fill_cnvs(FILE *file, t_img *img)
 {
-	int		il;
-	int		is;
+	int		ix;
+	int		iy;
 	char	**cnvs;
 
-	if (fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bckgrnd) != 3)
+	if (fscanf(file, "%d %d %c\n", &img->cnvs.w, &img->cnvs.h, &img->cnvs.bgrnd) != 3)
 		return (NULL);
-	if (img->cnvs.w <= 0 || img->cnvs.w > 300)
+	if ((img->cnvs.w <= 0 || img->cnvs.w > 300) || (img->cnvs.h <= 0 || img->cnvs.h > 300))
 		return (NULL);
-	if ()
+	if (!(cnvs = (char **)malloc(img->cnvs.h * sizeof(char *))))
 		return (NULL);
-	il = 0;
-	while (/* condition */)
+	iy = 0;
+	while (iy < img->cnvs.h)
 	{
-		if ()
+		if (!(cnvs[iy] = (char *)malloc(img->cnvs.w * sizeof(char))))
 			return (NULL);
-		is = 0;
-		while ()
+		ix = 0;
+		while (ix < img->cnvs.w)
 		{
-			
-			is++;
+			cnvs[iy][ix] = img->cnvs.bgrnd;
+			ix++;
 		}
-		il++;
+		iy++;
 	}
 	return (cnvs);
 }
 
 /*circle*/
-int	is_in_circl()
-{
+// int	is_in_crcl(int x, int y, t_img *img)
+// {
+// 	float	xf;
+// 	float	yf;
+// 	float	dist;
 
-}
+// 	xf = (float)x;
+// 	yf = (float)y;
+// 	dist = sqrt((xf - img->fgr.x) * (xf - img->fgr.x) + (yf - img->fgr.y) * (yf - img->fgr.y));
+// 	if (dist <= img->fgr.r)
+// 	{
+// 		if ((img->fgr.r - dist) < 1)
+// 			return (2);
+// 		return (1);
+// 	}
+// 	else
+// 		return (0);
+// }
 
 /*rctngl*/
-int	is_in_rctngl()
+int	is_in_rect(int x, int y, t_img *img)
 {
-	
+	int		xi;
+	int		yi;
+	int		wi;
+	int		hi;
+
+	xi = ceil(img->fgr.x);
+	yi = ceil(img->fgr.y);
+	wi = floor(img->fgr.w);
+	hi = floor(img->fgr.h);
+	if ((xi <= x && x <= (xi + wi - 1)) && (yi <= y && y <= (yi + hi - 1)))
+	{
+		if ((xi == x || x == (xi + wi - 1)) || (yi == y || y == (yi + hi - 1)))
+			return (2);
+		return (1);
+	}
+	else
+		return (0);
 }
 
 /*circle*/
-void	fill_fgr_2()
-{
+// void	fill_fgr_2(t_img *img)
+// {
+// 	int		iy;
+// 	int		ix;
+// 	int		in_crcl;
 
-}
+// 	iy = 0;
+// 	while (iy < img->cnvs.h)
+// 	{
+// 		ix = 0;
+// 		while (ix < img->cnvs.w)
+// 		{
+// 			in_crcl = is_in_crcl(ix, iy, img);
+// 			if ((in_crcl == 2 && img->fgr.type == 'c') || ((in_crcl == 1 || in_crcl == 2) && img->fgr.type == 'C'))
+// 				img->image[iy][ix] = img->fgr.col;
+// 			ix++;
+// 		}
+// 		iy++;
+// 	}
+// }
 
 /*rctngl*/
-void	fill_fgr_2()
+void	fill_fgr_2(t_img *img)
 {
+	int		iy;
+	int		ix;
+	int		in_rect;
 
+	iy = 0;
+	while (iy < img->cnvs.h)
+	{
+		ix = 0;
+		while (ix < img->cnvs.w)
+		{
+			in_rect = is_in_rect(ix, iy, img);
+			if ((in_rect == 2 && img->fgr.type == 'r') || ((in_rect == 1 || in_rect == 2) && img->fgr.type == 'R'))
+				img->image[iy][ix] = img->fgr.col;
+			ix++;
+		}
+		iy++;
+	}
 }
 
 /*circle*/
-int	fill_fgr_1()
-{
+// int	fill_fgr_1(FILE *file, t_img *img)
+// {
+// 	int		scan_count;
 
-}
+// 	while ((scan_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.r, &img->fgr.col)) == 5)
+// 	{
+// 		if (img->fgr.r <= 0 || (img->fgr.type != 'c' && img->fgr.type != 'C'))
+// 			return (0);
+// 		fill_fgr_2(img);
+// 	}
+// 	if (scan_count >= 0)
+// 		return (0);
+// 	return (1);
+// }
 
 /*rctngl*/
-int	fill_fgr_1()
+int	fill_fgr_1(FILE *file, t_img *img)
 {
-	
+	int		scan_count;
+
+	while ((scan_count = fscanf(file, "%c %f %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.w, &img->fgr.h, &img->fgr.col)) == 6)
+	{
+		if ((img->fgr.w <= 0 || img->fgr.h <= 0) || (img->fgr.type != 'r' && img->fgr.type != 'R'))
+			return (0);
+		fill_fgr_2(img);
+	}
+	if (scan_count >= 0)
+		return (0);
+	return (1);
 }
 
+/*main*/
 int	main(int argc, char **argv)
 {
-	t_img	*img;
 	FILE	*file;
+	t_img	*img;
 
-	if ()
-		return ();
-	if ()
-		return ();
-	if ()
-		return ()
-	if ()
-		return ();
-	if ()
-		return ();
-	print_image();
-	free_all();
+	if (!(img = (t_img *)malloc(1 * sizeof(t_img))))
+		return (err_message("Memory allocation error"));
+	if (argc != 2)
+		return (err_message("Wrong number of arguments"));
+	if (!(file = fopen(argv[1], "r")))
+		return (err_message("Operation file corrupted"));
+	if (!(img->image = fill_cnvs(file, img)))
+		return (free_all(file, img) && err_message("Operation file corrupted"));
+	if (!(fill_fgr_1(file, img)))
+		return (free_all(file, img) && err_message("Operation file corrupted"));
+	print_image(img);
+	free_all(file, img);
 	return (0);
 }

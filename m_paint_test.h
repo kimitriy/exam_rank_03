@@ -10,27 +10,27 @@ typedef struct s_cnvs
 {
 	int			w;
 	int			h;
-	int			bgrnd;
+	char		bgrnd;
 }	t_cnvs;
 
 /*circle*/
-typedef struct s_fgr
-{
-	char		t;
-	int			x;
-	int			y;
-	int			r;
-	char		col;
-}	t_fgr;
+// typedef struct s_fgr
+// {
+// 	char		type;
+// 	float		x;
+// 	float		y;
+// 	float		r;
+// 	char		col;
+// }	t_fgr;
 
 /*rectangle*/
 typedef struct s_fgr
 {
-	char		t;
-	int			x;
-	int			y;
-	int			w;
-	int			h;
+	char		type;
+	float		x;
+	float		y;
+	float		w;
+	float		h;
 	char		col;
 }	t_fgr;
 
