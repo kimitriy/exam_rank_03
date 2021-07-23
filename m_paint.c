@@ -88,40 +88,27 @@ char	**fill_cnvs(FILE *file, t_img *img)
 }
 
 /*circle*/
-// int	is_in_crcl(int x, int y, t_img *img)
-// {
-// 	float	xf;
-// 	float	yf;
-// 	float	dist;
+int		is_in_crcl(float x, float y, t_img *img)
+{
+	float	dist;
 
-// 	xf = (float)x;
-// 	yf = (float)y;
-// 	dist = sqrt((xf - img->fgr.x) * (xf - img->fgr.x) + (yf - img->fgr.y) * (yf - img->fgr.y));
-// 	if (dist <= img->fgr.r)
-// 	{
-// 		if ((img->fgr.r - dist) < 1)
-// 			return (2);
-// 		return (1);
-// 	}
-// 	else
-// 		return (0);
-// }
+	dist = sqrt((x - img->fgr.x) * (x - img->fgr.x) + (y - img->fgr.y) * (y - img->fgr.y));
+	if (dist <= img->fgr.r)
+	{
+		if ((img->fgr.r - dist) < 1)
+			return (2);
+		return (1);
+	}
+	else
+		return (0);
+}
 
 /*rctngl*/
-int	is_in_rect(int x, int y, t_img *img)
+int		is_in_rect(float x, float y, t_img *img)
 {
-	int		xi;
-	int		yi;
-	int		wi;
-	int		hi;
-
-	xi = ceil(img->fgr.x);
-	yi = ceil(img->fgr.y);
-	wi = floor(img->fgr.w);
-	hi = floor(img->fgr.h);
-	if ((xi <= x && x <= (xi + wi - 1)) && (yi <= y && y <= (yi + hi - 1)))
+	if ((img->fgr.x <= x && x <= (img->fgr.x + img->fgr.w)) && (img->fgr.y <= y && y <= (img->fgr.y + img->fgr.h)))
 	{
-		if ((xi == x || x == (xi + wi - 1)) || (yi == y || y == (yi + hi - 1)))
+		if ((x - img->fgr.x) < 1 || (img->fgr.x + img->fgr.w - x) < 1 || (y - img->fgr.y) < 1 || (img->fgr.y + img->fgr.h - y) < 1)
 			return (2);
 		return (1);
 	}
@@ -130,26 +117,26 @@ int	is_in_rect(int x, int y, t_img *img)
 }
 
 /*circle*/
-// void	fill_fgr_2(t_img *img)
-// {
-// 	int		iy;
-// 	int		ix;
-// 	int		in_crcl;
+void	fill_fgr_2(t_img *img)
+{
+	int		iy;
+	int		ix;
+	int		in_crcl;
 
-// 	iy = 0;
-// 	while (iy < img->cnvs.h)
-// 	{
-// 		ix = 0;
-// 		while (ix < img->cnvs.w)
-// 		{
-// 			in_crcl = is_in_crcl(ix, iy, img);
-// 			if ((in_crcl == 2 && img->fgr.type == 'c') || ((in_crcl == 1 || in_crcl == 2) && img->fgr.type == 'C'))
-// 				img->image[iy][ix] = img->fgr.col;
-// 			ix++;
-// 		}
-// 		iy++;
-// 	}
-// }
+	iy = 0;
+	while (iy < img->cnvs.h)
+	{
+		ix = 0;
+		while (ix < img->cnvs.w)
+		{
+			in_crcl = is_in_crcl((float)ix, (float)iy, img);
+			if ((in_crcl == 2 && img->fgr.type == 'c') || ((in_crcl == 1 || in_crcl == 2) && img->fgr.type == 'C'))
+				img->image[iy][ix] = img->fgr.col;
+			ix++;
+		}
+		iy++;
+	}
+}
 
 /*rctngl*/
 void	fill_fgr_2(t_img *img)
@@ -164,7 +151,7 @@ void	fill_fgr_2(t_img *img)
 		ix = 0;
 		while (ix < img->cnvs.w)
 		{
-			in_rect = is_in_rect(ix, iy, img);
+			in_rect = is_in_rect((float)ix, (float)iy, img);
 			if ((in_rect == 2 && img->fgr.type == 'r') || ((in_rect == 1 || in_rect == 2) && img->fgr.type == 'R'))
 				img->image[iy][ix] = img->fgr.col;
 			ix++;
@@ -174,20 +161,20 @@ void	fill_fgr_2(t_img *img)
 }
 
 /*circle*/
-// int	fill_fgr_1(FILE *file, t_img *img)
-// {
-// 	int		scan_count;
+int	fill_fgr_1(FILE *file, t_img *img)
+{
+	int		scan_count;
 
-// 	while ((scan_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.r, &img->fgr.col)) == 5)
-// 	{
-// 		if (img->fgr.r <= 0 || (img->fgr.type != 'c' && img->fgr.type != 'C'))
-// 			return (0);
-// 		fill_fgr_2(img);
-// 	}
-// 	if (scan_count >= 0)
-// 		return (0);
-// 	return (1);
-// }
+	while ((scan_count = fscanf(file, "%c %f %f %f %c\n", &img->fgr.type, &img->fgr.x, &img->fgr.y, &img->fgr.r, &img->fgr.col)) == 5)
+	{
+		if (img->fgr.r <= 0 || (img->fgr.type != 'c' && img->fgr.type != 'C'))
+			return (0);
+		fill_fgr_2(img);
+	}
+	if (scan_count != -1)
+		return (0);
+	return (1);
+}
 
 /*rctngl*/
 int	fill_fgr_1(FILE *file, t_img *img)
@@ -200,7 +187,7 @@ int	fill_fgr_1(FILE *file, t_img *img)
 			return (0);
 		fill_fgr_2(img);
 	}
-	if (scan_count >= 0)
+	if (scan_count != -1)
 		return (0);
 	return (1);
 }
